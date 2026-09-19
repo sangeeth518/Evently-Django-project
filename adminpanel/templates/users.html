@@ -1,0 +1,157 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}User Management | Evently Admin{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-bar {
+        background: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .user-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-table-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <form method="GET" class="search-form">
+        <input type="text" name="search" class="form-control" placeholder="Search by name or email..." value="{{ search }}">
+        <select name="status" class="form-control" style="max-width: 150px;">
+            <option value="">All Status</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="blocked" {% if status_filter == 'blocked' %}selected{% endif %}>Blocked</option>
+        </select>
+        <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1rem;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        {% if search or status_filter %}
+            <a href="{% url 'admin_users' %}" class="btn btn-outline" title="Clear Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+            </a>
+        {% endif %}
+    </form>
+    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+        Total Users: {{ users|length }}
+    </div>
+</div>
+
+<!-- USERS TABLE -->
+<div class="data-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Email Address</th>
+                <th>Phone</th>
+                <th>Joined Date</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div class="user-info-cell">
+                        {% if user.userprofile.profile_picture %}
+                            <img src="{{ user.userprofile.profile_picture.url }}" alt="{{ user.first_name }}" class="user-table-avatar">
+                        {% else %}
+                            <div class="user-table-avatar">{{ user.first_name|default:user.username|make_list|first|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <div style="font-weight: 700;">{{ user.first_name }} {{ user.last_name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">@{{ user.username }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-weight: 600;">{{ user.email }}</td>
+                <td>{{ user.userprofile.phone|default:"—" }}</td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    {% if user.is_active %}
+                        <span class="badge badge-success"><i class="fa-solid fa-check"></i> Active</span>
+                    {% else %}
+                        <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> Blocked</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <form method="POST" action="{% url 'admin_toggle_user_status' user.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to {% if user.is_active %}block{% else %}unblock{% endif %} {{ user.email }}?');">
+                        {% csrf_token %}
+                        {% if user.is_active %}
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 12px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-user-slash"></i> Block User
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success" style="padding: 5px 12px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-user-check"></i> Unblock
+                            </button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <i class="fa-solid fa-users-slash" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; color: #cbd5e1;"></i>
+                    No users found matching your query.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

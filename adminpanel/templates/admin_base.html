@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Portal | Evently{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #e0e7ff;
+            --sidebar-bg: #0f172a;
+            --sidebar-surface: #1e293b;
+            --sidebar-border: rgba(255, 255, 255, 0.08);
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #ffffff;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .admin-sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            height: 72px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--sidebar-border);
+            text-decoration: none;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .sidebar-brand .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .sidebar-brand .badge-admin {
+            font-size: 0.65rem;
+            background: rgba(99, 102, 241, 0.25);
+            color: #a5b4fc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .sidebar-nav {
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            list-style: none;
+            flex: 1;
+        }
+
+        .sidebar-label {
+            font-size: 0.725rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+            padding: 0.5rem 0.75rem 0.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.925rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .nav-item a:hover {
+            color: var(--sidebar-active);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-item a.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--sidebar-surface);
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .admin-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .admin-role {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* MAIN CONTENT */
+        .admin-main {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* TOPBAR */
+        .admin-topbar {
+            height: 72px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .topbar-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            color: var(--text-main);
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .btn-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        /* CONTENT WRAPPER */
+        .admin-content {
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-info { background: #f0f9ff; color: #075985; border: 1px solid #bae6fd; }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-success { background: #dcfce7; color: #15803d; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+        .badge-warning { background: #fef3c7; color: #b45309; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }
+        .badge-secondary { background: #f1f5f9; color: #475569; }
+
+        /* TABLES */
+        .data-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        @media (max-width: 900px) {
+            .admin-sidebar { display: none; }
+            .admin-main { margin-left: 0; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+            <div class="logo-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <span>Event<span style="color: #818cf8;">ly</span></span>
+            <span class="badge-admin">Admin</span>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="sidebar-label">Navigation</li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_events' %}" class="{% if 'event' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-days"></i> Manage Events
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_bookings' %}" class="{% if 'booking' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fa-solid fa-ticket"></i> Bookings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_users' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i> Users
+                </a>
+            </li>
+
+            <li class="sidebar-label" style="margin-top: 1.5rem;">Website Portal</li>
+            <li class="nav-item">
+                <a href="{% url 'home' %}" target="_blank">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> View Customer Site
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="admin-user-info">
+                <div class="admin-avatar">{{ request.user.username|make_list|first|upper }}</div>
+                <div>
+                    <div class="admin-name">{{ request.user.first_name|default:request.user.username }}</div>
+                    <div class="admin-role">Super Admin</div>
+                </div>
+            </div>
+            <a href="{% url 'admin_logout' %}" style="color: #94a3b8; text-decoration: none; font-size: 1.1rem;" title="Logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="admin-main">
+        <!-- TOPBAR -->
+        <header class="admin-topbar">
+            <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+
+            <div class="topbar-actions">
+                {% block topbar_actions %}
+                    <a href="{% url 'admin_add_event' %}" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i> Create Event
+                    </a>
+                {% endblock %}
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="admin-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                        <button type="button" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:inherit;" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

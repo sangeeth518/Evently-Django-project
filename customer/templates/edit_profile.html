@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile | Evently{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 650px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        padding: 2.5rem;
+    }
+
+    .form-card-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .form-card-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    /* INTERACTIVE AVATAR UPLOAD SECTION */
+    .avatar-upload-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .avatar-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+        border-radius: 50%;
+    }
+
+    .avatar-img-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        display: block;
+        background: #e2e8f0;
+    }
+
+    .avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.8rem;
+        font-weight: 800;
+        border: 4px solid white;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    /* CAMERA OVERLAY ON HOVER */
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.55);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .avatar-wrapper:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-overlay i {
+        font-size: 1.5rem;
+        margin-bottom: 4px;
+    }
+
+    .avatar-overlay span {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .camera-badge {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 34px;
+        height: 34px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: var(--shadow-sm);
+        pointer-events: none;
+    }
+
+    .avatar-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 1rem;
+    }
+
+    .btn-avatar-action {
+        background: #f1f5f9;
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        padding: 6px 14px;
+        border-radius: var(--radius-md);
+        font-size: 0.825rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .btn-avatar-action:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-avatar-delete {
+        color: var(--danger);
+        border-color: #fecaca;
+        background: #fff5f5;
+    }
+
+    .btn-avatar-delete:hover {
+        background: #fee2e2;
+    }
+
+    /* FORM STYLING */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        color: var(--text-main);
+        outline: none;
+        transition: var(--transition);
+        background: #f8fafc;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h1 class="form-card-title">Edit Profile</h1>
+        <p class="form-card-subtitle">Click your avatar to upload a new picture directly</p>
+
+        <!-- AVATAR UPLOAD SECTION (CLICK DIRECTLY TO UPLOAD) -->
+        <div class="avatar-upload-container">
+            <div class="avatar-wrapper" onclick="triggerPhotoUpload()" title="Click to upload profile photo">
+                <img id="avatarPreviewImg" 
+                     src="{% if profile.profile_picture %}{{ profile.profile_picture.url }}{% endif %}" 
+                     alt="Profile Picture" 
+                     class="avatar-img-preview"
+                     style="{% if not profile.profile_picture %}display: none;{% endif %}">
+                
+                <div id="avatarPlaceholder" 
+                     class="avatar-placeholder" 
+                     style="{% if profile.profile_picture %}display: none;{% endif %}">
+                    {{ user.first_name|default:user.username|make_list|first|upper }}
+                </div>
+
+                <div class="avatar-overlay">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Change</span>
+                </div>
+
+                <div class="camera-badge">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+            </div>
+
+            <div class="avatar-controls">
+                <button type="button" class="btn-avatar-action" onclick="triggerPhotoUpload()">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Change Photo
+                </button>
+
+                {% if profile.profile_picture %}
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Remove your profile picture?');">
+                    {% csrf_token %}
+                    <button type="submit" name="delete_picture" value="1" class="btn-avatar-action btn-avatar-delete">
+                        <i class="fa-solid fa-trash-can"></i> Remove
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div id="fileChosenText" style="font-size: 0.75rem; color: var(--primary); margin-top: 6px; font-weight: 600;"></div>
+        </div>
+
+        <!-- MAIN PROFILE FORM -->
+        <form method="POST" enctype="multipart/form-data" id="profileForm">
+            {% csrf_token %}
+
+            <!-- HIDDEN FILE INPUT TRIGGERED BY AVATAR CLICK -->
+            <input type="file" 
+                   id="profile_picture_input" 
+                   name="profile_picture" 
+                   accept="image/*" 
+                   style="display: none;" 
+                   onchange="handleImagePreview(event)">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="firstname" class="form-control" value="{{ user.first_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="lastname" class="form-control" value="{{ user.last_name }}">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Email Address (Username)</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ profile.phone|default:'' }}" placeholder="+91 9876543210">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'profile' %}" class="btn btn-outline" style="border-color: var(--border); color: var(--text-muted);">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function triggerPhotoUpload() {
+        document.getElementById('profile_picture_input').click();
+    }
+
+    function handleImagePreview(event) {
+        var input = event.target;
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var previewImg = document.getElementById('avatarPreviewImg');
+                var placeholder = document.getElementById('avatarPlaceholder');
+                var fileText = document.getElementById('fileChosenText');
+
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+                if (fileText) {
+                    fileText.textContent = 'Selected: ' + file.name + ' (Click Save Changes below)';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+{% endblock %}

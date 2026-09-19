@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | Evently{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    .profile-cover {
+        height: 140px;
+        background: linear-gradient(135deg, #0f172a 0%, #312e81 100%);
+    }
+
+    .profile-header-content {
+        padding: 0 2rem 2rem;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-top: -60px;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .profile-avatar-wrapper {
+        display: flex;
+        align-items: flex-end;
+        gap: 1.5rem;
+    }
+
+    .profile-avatar-lg {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 4px solid white;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 800;
+        object-fit: cover;
+    }
+
+    .profile-name-block h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .profile-name-block p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-top: 2px;
+    }
+
+    .profile-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 2rem;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        background: #f8fafc;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .stat-info .count {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .stat-info .label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    .profile-details-section {
+        padding: 2rem;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+
+    .detail-val {
+        color: var(--dark);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-cover"></div>
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ user.first_name }}" class="profile-avatar-lg">
+                {% else %}
+                    <div class="profile-avatar-lg">{{ user.first_name|default:user.username|make_list|first|upper }}</div>
+                {% endif %}
+                <div class="profile-name-block">
+                    <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                    <p><i class="fa-regular fa-envelope"></i> {{ user.email }}</p>
+                </div>
+            </div>
+
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </a>
+        </div>
+
+        <!-- STATS -->
+        <div class="profile-stats-grid">
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fa-solid fa-ticket"></i></div>
+                <div class="stat-info">
+                    <div class="count">{{ bookings_count }}</div>
+                    <div class="label">Total Bookings</div>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #dcfce7; color: #15803d;"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-info">
+                    <div class="count">{{ active_bookings_count }}</div>
+                    <div class="label">Active Tickets</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAILS -->
+        <div class="profile-details-section">
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark);">Account Information</h3>
+            <div class="detail-row">
+                <div class="detail-label">First Name</div>
+                <div class="detail-val">{{ user.first_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Last Name</div>
+                <div class="detail-val">{{ user.last_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Email Address</div>
+                <div class="detail-val">{{ user.email }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Phone Number</div>
+                <div class="detail-val">{{ profile.phone|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Member Since</div>
+                <div class="detail-val">{{ user.date_joined|date:"F d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

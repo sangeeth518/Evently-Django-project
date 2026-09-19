@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+
+{% block title %}Evently | Discover & Book Unforgettable Events{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* HERO SECTION */
+    .hero {
+        position: relative;
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        color: white;
+        padding: 5rem 1.5rem 6rem;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        max-width: 860px;
+        margin: 0 auto;
+        z-index: 1;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(129, 140, 248, 0.3);
+        padding: 6px 16px;
+        border-radius: var(--radius-full);
+        color: #a5b4fc;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -1.5px;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span {
+        background: linear-gradient(135deg, #818cf8, #c084fc, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        color: #94a3b8;
+        max-width: 650px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.6;
+    }
+
+    /* SEARCH BAR */
+    .search-box-wrapper {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 8px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        max-width: 720px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-input-group {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        gap: 10px;
+    }
+
+    .search-input-group i {
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+
+    .search-input-group input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 500;
+    }
+
+    .search-box-wrapper .btn-search {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        color: white;
+        border: none;
+        padding: 0.875rem 1.75rem;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+    }
+
+    .search-box-wrapper .btn-search:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* CATEGORIES BAR */
+    .category-pills {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+
+    .cat-pill {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #cbd5e1;
+        padding: 6px 16px;
+        border-radius: var(--radius-full);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .cat-pill:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    /* SECTION CONTAINERS */
+    .section-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark);
+        letter-spacing: -0.5px;
+    }
+
+    .section-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 4px;
+    }
+
+    .view-all-link {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: var(--transition);
+    }
+
+    .view-all-link:hover {
+        transform: translateX(4px);
+        color: var(--primary-dark);
+    }
+
+    /* EVENT GRID & CARDS */
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+    }
+
+    .event-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+        border-color: #cbd5e1;
+    }
+
+    .event-card-media {
+        position: relative;
+        height: 210px;
+        overflow: hidden;
+        background: #e2e8f0;
+    }
+
+    .event-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .event-card:hover .event-card-img {
+        transform: scale(1.06);
+    }
+
+    .event-card-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1e293b, #334155);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 2.5rem;
+    }
+
+    .event-category-tag {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(8px);
+        color: #ffffff;
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .event-date-badge {
+        position: absolute;
+        bottom: 14px;
+        right: 14px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(6px);
+        border-radius: var(--radius-md);
+        padding: 6px 12px;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+    }
+
+    .event-date-badge .day {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    .event-date-badge .month {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .event-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .event-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        line-height: 1.35;
+        text-decoration: none;
+    }
+
+    .event-card-title:hover {
+        color: var(--primary);
+    }
+
+    .event-meta-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .event-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .event-meta-item i {
+        color: var(--primary);
+        width: 16px;
+    }
+
+    .event-card-footer {
+        margin-top: auto;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .event-card-price {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .event-card-price .label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .event-card-price .amount {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    /* FEATURES GRID */
+    .features-section {
+        background: white;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 5rem 1.5rem;
+    }
+
+    .features-grid {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .feature-card {
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        background: var(--bg-body);
+        border: 1px solid var(--border);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-light);
+    }
+
+    .feature-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .feature-card p {
+        color: var(--text-muted);
+        font-size: 0.925rem;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2.4rem; }
+        .hero p { font-size: 1rem; }
+        .search-box-wrapper { flex-direction: column; padding: 12px; }
+        .search-box-wrapper .btn-search { width: 100%; justify-content: center; }
+        .events-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fa-solid fa-sparkles"></i> The Premier Event Ticketing Platform
+        </div>
+        <h1>Don't Miss The Next <span>Unforgettable</span> Experience</h1>
+        <p>Explore thousands of live concerts, tech summits, sports tournaments, and intimate masterclasses happening near you.</p>
+
+        <!-- SEARCH BOX -->
+        <form action="{% url 'events' %}" method="GET" class="search-box-wrapper">
+            <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="search" placeholder="Search by event title, artist, or venue..." autocomplete="off">
+            </div>
+            <button type="submit" class="btn-search">
+                <span>Find Events</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- POPULAR CATEGORIES CHIPS -->
+        {% if categories %}
+        <div class="category-pills">
+            <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Popular:</span>
+            {% for cat in categories %}
+                <a href="{% url 'events' %}?category={{ cat }}" class="cat-pill">
+                    {{ cat }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- UPCOMING EVENTS SECTION -->
+<div class="section-container">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Upcoming Events</h2>
+            <p class="section-subtitle">Handpicked experiences happening soon in your area</p>
+        </div>
+        <a href="{% url 'events' %}" class="view-all-link">
+            Explore All ({{ total_events_count }}) <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    {% if upcoming_events %}
+    <div class="events-grid">
+        {% for event in upcoming_events %}
+        <div class="event-card">
+            <div class="event-card-media">
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.name }}" class="event-card-img">
+                {% else %}
+                    <div class="event-card-placeholder">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                {% endif %}
+                
+                {% if event.category %}
+                    <div class="event-category-tag">{{ event.category }}</div>
+                {% endif %}
+
+                <div class="event-date-badge">
+                    <div class="day">{{ event.date|date:"d" }}</div>
+                    <div class="month">{{ event.date|date:"M" }}</div>
+                </div>
+            </div>
+
+            <div class="event-card-body">
+                <a href="{% url 'event_details' event.id %}" class="event-card-title">{{ event.name }}</a>
+                
+                <div class="event-meta-list">
+                    <div class="event-meta-item">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>{{ event.time|time:"g:i A" }}</span>
+                    </div>
+                    <div class="event-meta-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>{{ event.venue }}, {{ event.location }}</span>
+                    </div>
+                </div>
+
+                <div class="event-card-footer">
+                    <div class="event-card-price">
+                        <span class="label">Tickets From</span>
+                        <span class="amount">
+                            {% with first_ticket=event.ticket_types.first %}
+                                {% if first_ticket %}
+                                    ₹{{ first_ticket.price }}
+                                {% else %}
+                                    Free / TBA
+                                {% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    <a href="{% url 'event_details' event.id %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        Book Tickets <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem 1rem; background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);">
+        <i class="fa-regular fa-calendar-xmark" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">No upcoming events found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Check back soon or explore all historical and announced events.</p>
+        <a href="{% url 'events' %}" class="btn btn-primary">Browse All Events</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- PLATFORM HIGHLIGHTS -->
+<section class="features-section">
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h3>Instant Booking</h3>
+            <p>Secure your spot in seconds with real-time seat availability and fast checkout.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-qrcode"></i></div>
+            <h3>Digital E-Tickets</h3>
+            <p>Access your tickets anytime on any device with instant digital receipts.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-shield-check"></i></div>
+            <h3>Guaranteed Entry</h3>
+            <p>100% verified tickets directly organized by authorized festival and venue coordinators.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

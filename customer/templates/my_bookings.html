@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings | Evently{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        max-width: 1000px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .page-header-box {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-top: 4px;
+    }
+
+    .booking-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .booking-item-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        padding: 1.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .booking-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: #cbd5e1;
+    }
+
+    .booking-main-info {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .booking-icon-box {
+        width: 54px;
+        height: 54px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .booking-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.35rem;
+    }
+
+    .booking-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        flex-wrap: wrap;
+    }
+
+    .booking-meta-row span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .booking-right-side {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        text-align: right;
+    }
+
+    .booking-amount {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .empty-state {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 5rem 1.5rem;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .booking-item-card { flex-direction: column; align-items: flex-start; }
+        .booking-right-side { width: 100%; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header-box">
+        <h1 class="page-title"><i class="fa-solid fa-ticket" style="color: var(--primary);"></i> My Bookings</h1>
+        <p class="page-subtitle">View and manage all your purchased event passes and ticket reservations.</p>
+    </div>
+
+    {% if bookings %}
+    <div class="booking-list">
+        {% for booking in bookings %}
+        <div class="booking-item-card">
+            <div class="booking-main-info">
+                <div class="booking-icon-box">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div>
+                    <h3 class="booking-title">{{ booking.event.name }}</h3>
+                    <div class="booking-meta-row">
+                        <span><i class="fa-solid fa-hashtag"></i> Booking #{{ booking.id }}</span>
+                        <span><i class="fa-regular fa-calendar"></i> {{ booking.event.date|date:"M d, Y" }}</span>
+                        <span><i class="fa-solid fa-location-dot"></i> {{ booking.event.venue }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="booking-right-side">
+                <div>
+                    {% if booking.status == 'Confirmed' %}
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+                    {% else %}
+                        <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                    {% endif %}
+                    <div class="booking-amount">₹{{ booking.total_amount }}</div>
+                </div>
+
+                <a href="{% url 'booking_details' booking.id %}" class="btn btn-outline" style="border-color: var(--border); color: var(--text-main); font-size: 0.85rem;">
+                    View Ticket <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-ticket-simple" style="font-size: 3.5rem; color: #cbd5e1; margin-bottom: 1.25rem;"></i>
+        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--dark);">No bookings found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.75rem;">You haven't purchased any event tickets yet. Discover exciting upcoming events now!</p>
+        <a href="{% url 'events' %}" class="btn btn-primary">Browse All Events</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

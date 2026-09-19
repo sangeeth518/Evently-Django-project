@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking #{{ booking.id }} Details | Evently{% endblock %}
+
+{% block extra_css %}
+<style>
+    .receipt-container {
+        max-width: 800px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .ticket-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ticket-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ticket-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .booking-ref {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 14px;
+        border-radius: var(--radius-full);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .ticket-body {
+        padding: 2.5rem 2rem;
+    }
+
+    .event-headline {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px dashed var(--border);
+    }
+
+    .event-headline h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .event-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-cell .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .info-cell .val {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    /* ITEM BREAKDOWN TABLE */
+    .breakdown-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .ticket-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+    }
+
+    .ticket-table th {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .ticket-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+        color: var(--dark);
+    }
+
+    .ticket-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .total-receipt-box {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .total-receipt-box .label {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .total-receipt-box .amount {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .ticket-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+        .event-info-grid { grid-template-columns: 1fr; }
+        .ticket-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .ticket-actions { flex-direction: column; gap: 1rem; }
+        .ticket-actions a, .ticket-actions button { width: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'my_bookings' %}" class="btn btn-outline" style="border-color: var(--border); color: var(--text-muted); font-size: 0.85rem;">
+            <i class="fa-solid fa-arrow-left"></i> Back to My Bookings
+        </a>
+    </div>
+
+    <div class="ticket-card">
+        <!-- HEADER -->
+        <div class="ticket-header">
+            <div>
+                <h1><i class="fa-solid fa-ticket"></i> Digital Event Pass</h1>
+                <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 4px;">Booked on {{ booking.booking_date|date:"F d, Y - g:i A" }}</p>
+            </div>
+            <div style="text-align: right;">
+                <span class="booking-ref">#BK-{{ booking.id }}</span>
+                <div style="margin-top: 8px;">
+                    {% if booking.status == 'Confirmed' %}
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+                    {% else %}
+                        <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="ticket-body">
+            <!-- EVENT HEADLINE -->
+            <div class="event-headline">
+                <h2>{{ booking.event.name }}</h2>
+                <div class="event-info-grid">
+                    <div class="info-cell">
+                        <div class="label">Date & Time</div>
+                        <div class="val">{{ booking.event.date|date:"M d, Y" }} at {{ booking.event.time|time:"g:i A" }}</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="label">Venue</div>
+                        <div class="val">{{ booking.event.venue }}</div>
+                    </div>
+                    <div class="info-cell">
+                        <div class="label">Location</div>
+                        <div class="val">{{ booking.event.location }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TICKET ITEMS -->
+            <h3 class="breakdown-title">Purchased Ticket Details</h3>
+            <table class="ticket-table">
+                <thead>
+                    <tr>
+                        <th>Ticket Type</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in booking.items.all %}
+                    <tr>
+                        <td style="font-weight: 700;">{{ item.ticket_type.name }}</td>
+                        <td>₹{{ item.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td style="text-align: right; font-weight: 700;">₹{{ item.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- TOTAL SUMMARY -->
+            <div class="total-receipt-box">
+                <span class="label">Total Paid:</span>
+                <span class="amount">₹{{ booking.total_amount }}</span>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="ticket-actions">
+                <a href="{% url 'events' %}" class="btn btn-outline" style="border-color: var(--border); color: var(--text-main);">
+                    <i class="fa-solid fa-compass"></i> Discover More Events
+                </a>
+
+                {% if booking.status == 'Confirmed' %}
+                    <form method="POST" action="{% url 'cancel_booking' booking.id %}" onsubmit="return confirm('Are you sure you want to cancel this booking? Tickets will be returned to inventory.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline" style="color: var(--danger); border-color: #fecaca; background: #fff5f5;">
+                            <i class="fa-solid fa-ban"></i> Cancel Booking
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

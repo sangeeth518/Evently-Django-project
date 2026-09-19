@@ -1,0 +1,134 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Manage Bookings | Evently Admin{% endblock %}
+{% block page_title %}Customer Bookings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-bar {
+        background: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <form method="GET" class="search-form">
+        <input type="text" name="search" class="form-control" placeholder="Search by ID, customer email, or event..." value="{{ search }}">
+        <select name="status" class="form-control" style="max-width: 160px;">
+            <option value="">All Statuses</option>
+            <option value="Confirmed" {% if status_filter == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+            <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+        <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1rem;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        {% if search or status_filter %}
+            <a href="{% url 'admin_bookings' %}" class="btn btn-outline" title="Clear Filters">
+                <i class="fa-solid fa-rotate-left"></i>
+            </a>
+        {% endif %}
+    </form>
+    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+        Total Bookings: {{ bookings|length }}
+    </div>
+</div>
+
+<!-- BOOKINGS TABLE -->
+<div class="data-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Booking Ref</th>
+                <th>Customer</th>
+                <th>Event</th>
+                <th>Date Placed</th>
+                <th>Total Paid</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td style="font-weight: 800; color: var(--primary);">#BK-{{ booking.id }}</td>
+                <td>
+                    <div style="font-weight: 700;">{{ booking.user.first_name }} {{ booking.user.last_name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ booking.user.email }}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 600;">{{ booking.event.name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ booking.event.date|date:"M d, Y" }}</div>
+                </td>
+                <td>{{ booking.booking_date|date:"M d, Y - g:i A" }}</td>
+                <td style="font-weight: 800;">₹{{ booking.total_amount }}</td>
+                <td>
+                    {% if booking.status == 'Confirmed' %}
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+                    {% else %}
+                        <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <a href="{% url 'admin_booking_detail' booking.id %}" class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;" title="View Details">
+                            <i class="fa-solid fa-receipt"></i> Details
+                        </a>
+                        {% if booking.status == 'Confirmed' %}
+                        <form method="POST" action="{% url 'admin_cancel_booking' booking.id %}" style="display: inline;" onsubmit="return confirm('Cancel Booking #{{ booking.id }} and return tickets to inventory?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;" title="Cancel Booking">
+                                <i class="fa-solid fa-ban"></i> Cancel
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <i class="fa-solid fa-ticket" style="font-size: 2.5rem; margin-bottom: 0.5rem; display: block; color: #cbd5e1;"></i>
+                    No bookings found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Dashboard | Evently Admin{% endblock %}
+{% block page_title %}Overview Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* STATS GRID */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .stat-val {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.1;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    /* DASHBOARD SECTIONS */
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 2fr 1.2fr;
+        gap: 2rem;
+    }
+
+    .card-header-bar {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-header-bar h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .recent-event-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .recent-event-item:last-child {
+        border-bottom: none;
+    }
+
+    .event-minithumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: #e2e8f0;
+        object-fit: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 1000px) {
+        .dashboard-layout { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- METRICS CARDS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div>
+            <div class="stat-val">₹{{ total_revenue|floatformat:2 }}</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #ecfdf5; color: #059669;">
+            <i class="fa-solid fa-ticket"></i>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_tickets_sold }}</div>
+            <div class="stat-label">Tickets Sold</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #f0f9ff; color: #0284c7;">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_bookings }}</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #faf5ff; color: #9333ea;">
+            <i class="fa-solid fa-guitar"></i>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_events }}</div>
+            <div class="stat-label">Active Events</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fff7ed; color: #ea580c;">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <div class="stat-val">{{ total_users }}</div>
+            <div class="stat-label">Customers</div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN DASHBOARD CONTENT -->
+<div class="dashboard-layout">
+    <!-- RECENT BOOKINGS TABLE -->
+    <div class="data-card">
+        <div class="card-header-bar">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary); margin-right: 6px;"></i> Recent Customer Bookings</h3>
+            <a href="{% url 'admin_bookings' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">View All</a>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Event</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td style="font-weight: 700;">#{{ booking.id }}</td>
+                    <td>
+                        <div style="font-weight: 600;">{{ booking.user.first_name|default:booking.user.username }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ booking.user.email }}</div>
+                    </td>
+                    <td>{{ booking.event.name }}</td>
+                    <td style="font-weight: 700; color: var(--primary);">₹{{ booking.total_amount }}</td>
+                    <td>
+                        {% if booking.status == 'Confirmed' %}
+                            <span class="badge badge-success">Confirmed</span>
+                        {% else %}
+                            <span class="badge badge-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No bookings made yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RECENT EVENTS LIST -->
+    <div class="data-card">
+        <div class="card-header-bar">
+            <h3><i class="fa-solid fa-calendar-days" style="color: var(--primary); margin-right: 6px;"></i> Event Highlights</h3>
+            <a href="{% url 'admin_events' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">Manage</a>
+        </div>
+
+        <div>
+            {% for event in recent_events %}
+            <div class="recent-event-item">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" alt="{{ event.name }}" class="event-minithumb">
+                    {% else %}
+                        <div class="event-minithumb"><i class="fa-solid fa-calendar"></i></div>
+                    {% endif %}
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem;">{{ event.name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            <i class="fa-regular fa-calendar"></i> {{ event.date|date:"M d, Y" }} &bull; {{ event.category }}
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'admin_edit_event' event.id %}" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;" title="Edit Event">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No events scheduled.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

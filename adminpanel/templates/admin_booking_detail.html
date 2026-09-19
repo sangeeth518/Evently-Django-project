@@ -1,0 +1,176 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Booking #{{ booking.id }} | Evently Admin{% endblock %}
+{% block page_title %}Booking Details #{{ booking.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invoice-wrapper {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .invoice-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 2rem;
+    }
+
+    .invoice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px dashed var(--border);
+    }
+
+    .invoice-box h4 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .invoice-box p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-main);
+    }
+
+    .table-items {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    .table-items th {
+        background: #f8fafc;
+        padding: 0.85rem 1rem;
+        text-align: left;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-items td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+    }
+
+    .invoice-total-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    .invoice-total-amount {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-wrapper">
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <a href="{% url 'admin_bookings' %}" class="btn btn-outline">
+            <i class="fa-solid fa-arrow-left"></i> Back to Bookings
+        </a>
+
+        {% if booking.status == 'Confirmed' %}
+            <form method="POST" action="{% url 'admin_cancel_booking' booking.id %}" onsubmit="return confirm('Cancel this booking?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa-solid fa-ban"></i> Cancel & Restock
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="invoice-card">
+        <div class="invoice-header">
+            <div>
+                <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">Order Invoice</h2>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                    Booking Date: {{ booking.booking_date|date:"F d, Y - g:i A" }}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 1.1rem; font-weight: 800; color: var(--primary);">#BK-{{ booking.id }}</div>
+                <div style="margin-top: 6px;">
+                    {% if booking.status == 'Confirmed' %}
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+                    {% else %}
+                        <span class="badge badge-danger"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-grid">
+            <div class="invoice-box">
+                <h4>Customer Details</h4>
+                <p><strong>Name:</strong> {{ booking.user.first_name }} {{ booking.user.last_name }}</p>
+                <p><strong>Email:</strong> {{ booking.user.email }}</p>
+                <p><strong>Phone:</strong> {{ booking.user.userprofile.phone|default:"N/A" }}</p>
+            </div>
+
+            <div class="invoice-box">
+                <h4>Event Details</h4>
+                <p><strong>Event:</strong> {{ booking.event.name }}</p>
+                <p><strong>Date & Time:</strong> {{ booking.event.date|date:"M d, Y" }} at {{ booking.event.time|time:"g:i A" }}</p>
+                <p><strong>Venue:</strong> {{ booking.event.venue }}, {{ booking.event.location }}</p>
+            </div>
+        </div>
+
+        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem;">
+            Purchased Passes Breakdown
+        </h4>
+
+        <table class="table-items">
+            <thead>
+                <tr>
+                    <th>Ticket Tier</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th style="text-align: right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in booking.items.all %}
+                <tr>
+                    <td style="font-weight: 700;">{{ item.ticket_type.name }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td style="text-align: right; font-weight: 700;">₹{{ item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="invoice-total-row">
+            <span style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">Grand Total Paid:</span>
+            <span class="invoice-total-amount">₹{{ booking.total_amount }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

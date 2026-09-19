@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.name }} | Evently{% endblock %}
+
+{% block extra_css %}
+<style>
+    .details-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* HERO BANNER */
+    .event-hero {
+        position: relative;
+        height: 380px;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-lg);
+        background: #0f172a;
+    }
+
+    .event-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .event-hero-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1e1b4b, #0f172a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6366f1;
+        font-size: 4rem;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 2.5rem 2rem 1.5rem;
+        background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+        color: white;
+    }
+
+    .hero-category {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    /* GRID LAYOUT */
+    .event-layout {
+        display: grid;
+        grid-template-columns: 2fr 1.2fr;
+        gap: 2.5rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+    }
+
+    .info-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card h3 i {
+        color: var(--primary);
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .meta-box-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .meta-box-content .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+    }
+
+    .meta-box-content .value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-top: 2px;
+    }
+
+    .description-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #334155;
+        white-space: pre-line;
+    }
+
+    /* TICKET BOOKING SIDEBAR */
+    .booking-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 90px;
+    }
+
+    .booking-card-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .booking-card-header h3 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .ticket-tier-row {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: var(--transition);
+    }
+
+    .ticket-tier-row:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+    }
+
+    .tier-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .tier-name {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.05rem;
+    }
+
+    .tier-price {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .tier-stock {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    .stock-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stock-available { background: #dcfce7; color: #15803d; }
+    .stock-low { background: #fef3c7; color: #b45309; }
+    .stock-out { background: #fee2e2; color: #b91c1c; }
+
+    .qty-picker {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .qty-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        transition: var(--transition);
+    }
+
+    .qty-btn:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .qty-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .qty-input {
+        width: 45px;
+        height: 32px;
+        text-align: center;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .booking-summary {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--border);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+    }
+
+    .summary-total {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-book-submit {
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 0.9rem;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    @media (max-width: 900px) {
+        .event-layout { grid-template-columns: 1fr; }
+        .hero-title { font-size: 1.8rem; }
+        .event-hero { height: 260px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="details-container">
+    <div class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        <a href="{% url 'events' %}">Events</a>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        <span>{{ event.name }}</span>
+    </div>
+
+    <!-- HERO IMAGE -->
+    <div class="event-hero">
+        {% if event.image %}
+            <img src="{{ event.image.url }}" alt="{{ event.name }}">
+        {% else %}
+            <div class="event-hero-placeholder">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+        {% endif %}
+
+        <div class="hero-overlay">
+            {% if event.category %}
+                <span class="hero-category">{{ event.category }}</span>
+            {% endif %}
+            <h1 class="hero-title">{{ event.name }}</h1>
+        </div>
+    </div>
+
+    <div class="event-layout">
+        <!-- MAIN EVENT CONTENT -->
+        <div class="event-main">
+            <!-- QUICK METADATA -->
+            <div class="meta-grid">
+                <div class="meta-box">
+                    <div class="meta-box-icon"><i class="fa-regular fa-calendar"></i></div>
+                    <div class="meta-box-content">
+                        <div class="label">Date</div>
+                        <div class="value">{{ event.date|date:"D, M d, Y" }}</div>
+                    </div>
+                </div>
+                <div class="meta-box">
+                    <div class="meta-box-icon"><i class="fa-regular fa-clock"></i></div>
+                    <div class="meta-box-content">
+                        <div class="label">Time</div>
+                        <div class="value">{{ event.time|time:"g:i A" }}</div>
+                    </div>
+                </div>
+                <div class="meta-box">
+                    <div class="meta-box-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="meta-box-content">
+                        <div class="label">Venue & Location</div>
+                        <div class="value">{{ event.venue }}, {{ event.location }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABOUT EVENT -->
+            <div class="info-card">
+                <h3><i class="fa-solid fa-circle-info"></i> About This Event</h3>
+                <div class="description-text">{{ event.description }}</div>
+            </div>
+        </div>
+
+        <!-- BOOKING / TICKET SELECTOR SIDEBAR -->
+        <div class="event-sidebar">
+            <div class="booking-card">
+                <div class="booking-card-header">
+                    <h3>Select Tickets</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Choose your ticket tiers below</p>
+                </div>
+
+                {% if event.ticket_types.all %}
+                <form action="{% url 'book_event' event.id %}" method="POST" id="bookingForm">
+                    {% csrf_token %}
+
+                    {% for ticket in event.ticket_types.all %}
+                    <div class="ticket-tier-row">
+                        <div class="tier-header">
+                            <span class="tier-name">{{ ticket.name }}</span>
+                            <span class="tier-price">₹{{ ticket.price }}</span>
+                        </div>
+
+                        <div class="tier-stock">
+                            {% if ticket.quantity > 10 %}
+                                <span class="stock-badge stock-available"><i class="fa-solid fa-check"></i> {{ ticket.quantity }} Available</span>
+                            {% elif ticket.quantity > 0 %}
+                                <span class="stock-badge stock-low"><i class="fa-solid fa-triangle-exclamation"></i> Only {{ ticket.quantity }} left</span>
+                            {% else %}
+                                <span class="stock-badge stock-out"><i class="fa-solid fa-xmark"></i> Sold Out</span>
+                            {% endif %}
+                        </div>
+
+                        {% if ticket.quantity > 0 %}
+                        <div class="qty-picker">
+                            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Quantity:</span>
+                            <div class="qty-controls">
+                                <button type="button" class="qty-btn" data-ticket-id="{{ ticket.id }}" data-max="{{ ticket.quantity }}" onclick="adjustQty(this, -1)">-</button>
+                                <input type="number" 
+                                       name="quantity_{{ ticket.id }}" 
+                                       id="qty_{{ ticket.id }}" 
+                                       value="0" 
+                                       min="0" 
+                                       max="{{ ticket.quantity }}" 
+                                       data-price="{{ ticket.price }}"
+                                       class="qty-input" 
+                                       readonly>
+                                <button type="button" class="qty-btn" data-ticket-id="{{ ticket.id }}" data-max="{{ ticket.quantity }}" onclick="adjustQty(this, 1)">+</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="booking-summary">
+                        <div class="summary-row">
+                            <span>Selected Tickets:</span>
+                            <span id="totalTicketsCount" style="font-weight: 700; color: var(--dark);">0</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>Total Amount:</span>
+                            <span id="grandTotal" style="color: var(--primary);">₹0.00</span>
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <button type="submit" class="btn btn-primary btn-book-submit" id="bookSubmitBtn" disabled>
+                            <i class="fa-solid fa-ticket"></i> Proceed to Checkout
+                        </button>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-book-submit">
+                            Sign In to Book Tickets
+                        </a>
+                    {% endif %}
+                </form>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No ticket tiers available for this event yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function adjustQty(btn, delta) {
+        var ticketId = btn.getAttribute('data-ticket-id');
+        var input = document.getElementById('qty_' + ticketId);
+        if (!input) return;
+
+        var maxQty = parseInt(btn.getAttribute('data-max')) || 0;
+        var currentVal = parseInt(input.value) || 0;
+        var newVal = currentVal + delta;
+
+        if (newVal < 0) newVal = 0;
+        if (newVal > maxQty) newVal = maxQty;
+
+        input.value = newVal;
+        recalculateTotal();
+    }
+
+    function recalculateTotal() {
+        var totalCount = 0;
+        var totalAmount = 0;
+        var inputs = document.querySelectorAll('.qty-input');
+
+        inputs.forEach(function(input) {
+            var qty = parseInt(input.value) || 0;
+            var price = parseFloat(input.getAttribute('data-price')) || 0;
+            totalCount += qty;
+            totalAmount += qty * price;
+        });
+
+        var countEl = document.getElementById('totalTicketsCount');
+        if (countEl) countEl.textContent = totalCount;
+
+        var totalEl = document.getElementById('grandTotal');
+        if (totalEl) totalEl.textContent = '₹' + totalAmount.toFixed(2);
+
+        var btn = document.getElementById('bookSubmitBtn');
+        if (btn) btn.disabled = totalCount === 0;
+    }
+</script>
+{% endblock %}
